@@ -2,14 +2,15 @@
 import sqlite3
 
 conn = sqlite3.connect('data/ecommerce.sqlite')
-db = conn.cursor()
+c = conn.cursor()
 
 def detailed_orders(db):
     '''return a list of all orders (order_id, customer.contact_name,
     employee.firstname) ordered by order_id'''
 
     query = """
-    SELECT Orders.OrderID, Customers.ContactName AS Cust_name, Employees.FirstName AS Emp_name
+    SELECT Orders.OrderID, Customers.ContactName AS Cust_name,
+    Employees.FirstName AS Emp_name
     FROM Orders
     LEFT JOIN Customers ON Orders.CustomerID = Customers.CustomerID
     LEFT JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID
@@ -17,7 +18,6 @@ def detailed_orders(db):
     db.execute(query)
     rows = db.fetchall()
     return rows
-
 
 def spent_per_customer(db):
     '''return the total amount spent per customer ordered by ascending total
@@ -29,14 +29,14 @@ def spent_per_customer(db):
         ...
     '''
     query = """
-    SELECT Customers.ContactName AS Cust_name, ROUND(SUM(UnitPrice * Quantity), 2) AS Total_spent
+    SELECT Customers.ContactName AS Cust_name,
+    ROUND(SUM(UnitPrice * Quantity), 2) AS Total_spent
     FROM Orders
     LEFT JOIN Customers ON Orders.CustomerID = Customers.CustomerID
     LEFT JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
     GROUP BY Cust_name
     ORDER BY Total_spent ASC
     """
-
     db.execute(query)
     rows = db.fetchall()
     return rows
@@ -46,7 +46,8 @@ def best_employee(db):
     We expect the function to return a tuple like: ('FirstName', 'LastName', 6000 (the sum of all purchase)). The order of the information is irrelevant'''
 
     query = """
-    SELECT ROUND(SUM(UnitPrice * Quantity), 2) AS Total_spent, Employees.FirstName AS first_name, Employees.LastName AS last_name
+    SELECT ROUND(SUM(UnitPrice * Quantity), 2) AS Total_spent,
+    Employees.FirstName AS first_name, Employees.LastName AS last_name
     FROM Orders
     LEFT JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID
     LEFT JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
